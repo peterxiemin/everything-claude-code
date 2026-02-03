@@ -1,46 +1,30 @@
 # 常見模式
 
+## 適用範圍
+
+此檔案為跨語言模式。語言專屬範例請參考 `rules/lang-*.md`。
+
 ## API 回應格式
 
-```typescript
-interface ApiResponse<T> {
-  success: boolean
-  data?: T
-  error?: string
-  meta?: {
-    total: number
-    page: number
-    limit: number
-  }
-}
-```
+請在 API 中使用一致的回應格式：
 
-## 自訂 Hooks 模式
-
-```typescript
-export function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value)
-
-  useEffect(() => {
-    const handler = setTimeout(() => setDebouncedValue(value), delay)
-    return () => clearTimeout(handler)
-  }, [value, delay])
-
-  return debouncedValue
+```json
+{
+  "success": true,
+  "data": {},
+  "error": null,
+  "meta": { "total": 0, "page": 1, "limit": 20 }
 }
 ```
 
 ## Repository 模式
 
-```typescript
-interface Repository<T> {
-  findAll(filters?: Filters): Promise<T[]>
-  findById(id: string): Promise<T | null>
-  create(data: CreateDto): Promise<T>
-  update(id: string, data: UpdateDto): Promise<T>
-  delete(id: string): Promise<void>
-}
-```
+保持穩定的 CRUD 介面：
+- `findAll(filters)`
+- `findById(id)`
+- `create(data)`
+- `update(id, data)`
+- `delete(id)`
 
 ## 骨架專案
 

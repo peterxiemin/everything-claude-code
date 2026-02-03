@@ -206,12 +206,15 @@ everything-claude-code/
 |   |-- evolve.md           # /evolve - Cluster instincts into skills (NEW)
 |
 |-- rules/            # Always-follow guidelines (copy to ~/.claude/rules/)
+|   |-- 00-scope.md        # Rule scope and precedence (NEW)
 |   |-- security.md         # Mandatory security checks
 |   |-- coding-style.md     # Immutability, file organization
 |   |-- testing.md          # TDD, 80% coverage requirement
 |   |-- git-workflow.md     # Commit format, PR process
 |   |-- agents.md           # When to delegate to subagents
 |   |-- performance.md      # Model selection, context management
+|   |-- lang-ts.md          # TypeScript/JavaScript rules (NEW)
+|   |-- lang-java.md        # Java rules (NEW)
 |
 |-- hooks/            # Trigger-based automations
 |   |-- hooks.json                # All hooks config (PreToolUse, PostToolUse, Stop, etc.)

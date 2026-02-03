@@ -1,5 +1,9 @@
 # Testing Requirements
 
+## Scope
+
+These rules are cross-language. Use language-specific testing guides in `rules/lang-*.md` when available.
+
 ## Minimum Test Coverage: 80%
 
 Test Types (ALL required):

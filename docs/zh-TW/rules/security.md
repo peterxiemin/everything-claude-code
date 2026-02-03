@@ -1,5 +1,9 @@
 # 安全性指南
 
+## 適用範圍
+
+此檔案為跨語言規則。語言專屬範例與檢查請參考 `rules/lang-*.md`。
+
 ## 強制安全性檢查
 
 任何提交前：
@@ -14,17 +18,7 @@
 
 ## 密鑰管理
 
-```typescript
-// 絕不：寫死的密鑰
-const apiKey = "sk-proj-xxxxx"
-
-// 總是：環境變數
-const apiKey = process.env.OPENAI_API_KEY
-
-if (!apiKey) {
-  throw new Error('OPENAI_API_KEY not configured')
-}
-```
+絕不寫死密鑰。請使用環境變數或密鑰管理服務，且在缺少時立即失敗。
 
 ## 安全性回應協定
 

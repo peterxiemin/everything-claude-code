@@ -1,24 +1,12 @@
 # 程式碼風格
 
+## 適用範圍
+
+此檔案為跨語言規則。語言專屬範例與覆蓋規則請參考 `rules/lang-*.md`。
+
 ## 不可變性（關鍵）
 
-總是建立新物件，絕不變異：
-
-```javascript
-// 錯誤：變異
-function updateUser(user, name) {
-  user.name = name  // 變異！
-  return user
-}
-
-// 正確：不可變性
-function updateUser(user, name) {
-  return {
-    ...user,
-    name
-  }
-}
-```
+偏好不可變性，避免對共享狀態進行原地變異。必要時讓變異範圍清楚且局部化。
 
 ## 檔案組織
 
@@ -31,31 +19,13 @@ function updateUser(user, name) {
 ## 錯誤處理
 
 總是全面處理錯誤：
-
-```typescript
-try {
-  const result = await riskyOperation()
-  return result
-} catch (error) {
-  console.error('Operation failed:', error)
-  throw new Error('Detailed user-friendly message')
-}
-```
+- 為錯誤加入上下文
+- 不要吞掉例外
+- 盡量使用結構化日誌
 
 ## 輸入驗證
 
-總是驗證使用者輸入：
-
-```typescript
-import { z } from 'zod'
-
-const schema = z.object({
-  email: z.string().email(),
-  age: z.number().int().min(0).max(150)
-})
-
-const validated = schema.parse(input)
-```
+總是使用語言合適的驗證器或 schema 來驗證使用者輸入。
 
 ## 程式碼品質檢查清單
 
@@ -65,6 +35,6 @@ const validated = schema.parse(input)
 - [ ] 檔案專注（<800 行）
 - [ ] 沒有深層巢狀（>4 層）
 - [ ] 適當的錯誤處理
-- [ ] 沒有 console.log 陳述式
+- [ ] 沒有 debug 輸出（console/System.out）
 - [ ] 沒有寫死的值
 - [ ] 沒有變異（使用不可變模式）

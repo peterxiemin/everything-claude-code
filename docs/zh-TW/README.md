@@ -199,12 +199,15 @@ everything-claude-code/
 |   |-- java-build.md       # /java-build - 修復 Java 建置錯誤（新增）
 |
 |-- rules/            # 必須遵守的準則（複製到 ~/.claude/rules/）
+|   |-- 00-scope.md        # 規則範圍與優先順序（新增）
 |   |-- security.md         # 強制性安全檢查
 |   |-- coding-style.md     # 不可變性、檔案組織
 |   |-- testing.md          # TDD、80% 覆蓋率要求
 |   |-- git-workflow.md     # 提交格式、PR 流程
 |   |-- agents.md           # 何時委派給子代理程式
 |   |-- performance.md      # 模型選擇、上下文管理
+|   |-- lang-ts.md          # TypeScript/JavaScript 規則（新增）
+|   |-- lang-java.md        # Java 規則（新增）
 |
 |-- hooks/            # 基於觸發器的自動化
 |   |-- hooks.json                # 所有鉤子設定（PreToolUse、PostToolUse、Stop 等）

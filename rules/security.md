@@ -1,5 +1,9 @@
 # Security Guidelines
 
+## Scope
+
+These rules are cross-language. For language-specific examples and checks, see `rules/lang-*.md`.
+
 ## Mandatory Security Checks
 
 Before ANY commit:
@@ -14,17 +18,7 @@ Before ANY commit:
 
 ## Secret Management
 
-```typescript
-// NEVER: Hardcoded secrets
-const apiKey = "sk-proj-xxxxx"
-
-// ALWAYS: Environment variables
-const apiKey = process.env.OPENAI_API_KEY
-
-if (!apiKey) {
-  throw new Error('OPENAI_API_KEY not configured')
-}
-```
+Never hardcode secrets. Use environment variables or a secret manager and fail fast when missing.
 
 ## Security Response Protocol
 

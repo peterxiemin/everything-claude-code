@@ -204,12 +204,15 @@ everything-claude-code/
 |   |-- evolve.md           # /evolve - 将直觉聚类到技能中（新增）
 |
 |-- rules/            # 始终遵循的指南（复制到 ~/.claude/rules/）
+|   |-- 00-scope.md        # 规则范围与优先级（新增）
 |   |-- security.md         # 强制性安全检查
 |   |-- coding-style.md     # 不可变性、文件组织
 |   |-- testing.md          # TDD、80% 覆盖率要求
 |   |-- git-workflow.md     # 提交格式、PR 流程
 |   |-- agents.md           # 何时委托给子代理
 |   |-- performance.md      # 模型选择、上下文管理
+|   |-- lang-ts.md          # TypeScript/JavaScript 规则（新增）
+|   |-- lang-java.md        # Java 规则（新增）
 |
 |-- hooks/            # 基于触发器的自动化
 |   |-- hooks.json                # 所有钩子配置（PreToolUse、PostToolUse、Stop 等）

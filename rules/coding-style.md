@@ -1,24 +1,12 @@
 # Coding Style
 
+## Scope
+
+This file defines cross-language coding style rules. For language-specific examples and overrides, see `rules/lang-*.md`.
+
 ## Immutability (CRITICAL)
 
-ALWAYS create new objects, NEVER mutate:
-
-```javascript
-// WRONG: Mutation
-function updateUser(user, name) {
-  user.name = name  // MUTATION!
-  return user
-}
-
-// CORRECT: Immutability
-function updateUser(user, name) {
-  return {
-    ...user,
-    name
-  }
-}
-```
+Prefer immutability and avoid in-place mutation of shared state. When mutation is necessary, keep it localized and explicit.
 
 ## File Organization
 
@@ -31,31 +19,13 @@ MANY SMALL FILES > FEW LARGE FILES:
 ## Error Handling
 
 ALWAYS handle errors comprehensively:
-
-```typescript
-try {
-  const result = await riskyOperation()
-  return result
-} catch (error) {
-  console.error('Operation failed:', error)
-  throw new Error('Detailed user-friendly message')
-}
-```
+- Add context to errors
+- Don’t swallow exceptions
+- Use structured logging when available
 
 ## Input Validation
 
-ALWAYS validate user input:
-
-```typescript
-import { z } from 'zod'
-
-const schema = z.object({
-  email: z.string().email(),
-  age: z.number().int().min(0).max(150)
-})
-
-const validated = schema.parse(input)
-```
+ALWAYS validate user input using language-appropriate validators or schemas.
 
 ## Code Quality Checklist
 
@@ -65,6 +35,6 @@ Before marking work complete:
 - [ ] Files are focused (<800 lines)
 - [ ] No deep nesting (>4 levels)
 - [ ] Proper error handling
-- [ ] No console.log statements
+- [ ] No debug prints (console/System.out)
 - [ ] No hardcoded values
 - [ ] No mutation (immutable patterns used)

@@ -9,7 +9,7 @@
 ## 目前 Hooks（在 ~/.claude/settings.json）
 
 ### PreToolUse
-- **tmux 提醒**：建議對長時間執行的指令使用 tmux（npm、pnpm、yarn、cargo 等）
+- **tmux 提醒**：建議對長時間執行的指令使用 tmux（npm、pnpm、yarn、maven、cargo 等）
 - **git push 審查**：推送前開啟 Zed 進行審查
 - **文件阻擋器**：阻擋建立不必要的 .md/.txt 檔案
 
@@ -17,10 +17,10 @@
 - **PR 建立**：記錄 PR URL 和 GitHub Actions 狀態
 - **Prettier**：編輯後自動格式化 JS/TS 檔案
 - **TypeScript 檢查**：編輯 .ts/.tsx 檔案後執行 tsc
-- **console.log 警告**：警告編輯檔案中的 console.log
+- **console.log 警告**：警告編輯檔案中的 console/System.out
 
 ### Stop
-- **console.log 稽核**：工作階段結束前檢查所有修改檔案中的 console.log
+- **console.log 稽核**：工作階段結束前檢查所有修改檔案中的 console/System.out
 
 ## 自動接受權限
 

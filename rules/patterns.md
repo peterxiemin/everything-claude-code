@@ -1,46 +1,30 @@
 # Common Patterns
 
+## Scope
+
+These patterns are cross-language. For language-specific examples, see `rules/lang-*.md`.
+
 ## API Response Format
 
-```typescript
-interface ApiResponse<T> {
-  success: boolean
-  data?: T
-  error?: string
-  meta?: {
-    total: number
-    page: number
-    limit: number
-  }
-}
-```
+Use a consistent response envelope across APIs:
 
-## Custom Hooks Pattern
-
-```typescript
-export function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value)
-
-  useEffect(() => {
-    const handler = setTimeout(() => setDebouncedValue(value), delay)
-    return () => clearTimeout(handler)
-  }, [value, delay])
-
-  return debouncedValue
+```json
+{
+  "success": true,
+  "data": {},
+  "error": null,
+  "meta": { "total": 0, "page": 1, "limit": 20 }
 }
 ```
 
 ## Repository Pattern
 
-```typescript
-interface Repository<T> {
-  findAll(filters?: Filters): Promise<T[]>
-  findById(id: string): Promise<T | null>
-  create(data: CreateDto): Promise<T>
-  update(id: string, data: UpdateDto): Promise<T>
-  delete(id: string): Promise<void>
-}
-```
+Expose a stable CRUD surface, regardless of backing store:
+- `findAll(filters)`
+- `findById(id)`
+- `create(data)`
+- `update(id, data)`
+- `delete(id)`
 
 ## Skeleton Projects
 
