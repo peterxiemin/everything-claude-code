@@ -107,12 +107,12 @@ This plugin now fully supports **Windows, macOS, and Linux**. All hooks and scri
 
 ### Package Manager Detection
 
-The plugin automatically detects your preferred package manager (npm, pnpm, yarn, or bun) with the following priority:
+The plugin automatically detects your preferred package manager (npm, pnpm, yarn, bun, or maven) with the following priority:
 
 1. **Environment variable**: `CLAUDE_PACKAGE_MANAGER`
 2. **Project config**: `.claude/package-manager.json`
 3. **package.json**: `packageManager` field
-4. **Lock file**: Detection from package-lock.json, yarn.lock, pnpm-lock.yaml, or bun.lockb
+4. **Lock file**: Detection from package-lock.json, yarn.lock, pnpm-lock.yaml, bun.lockb, or pom.xml
 5. **Global config**: `~/.claude/package-manager.json`
 6. **Fallback**: First available package manager
 
@@ -158,6 +158,8 @@ everything-claude-code/
 |   |-- doc-updater.md       # Documentation sync
 |   |-- go-reviewer.md       # Go code review (NEW)
 |   |-- go-build-resolver.md # Go build error resolution (NEW)
+|   |-- java-reviewer.md     # Java code review (NEW)
+|   |-- java-build-resolver.md # Java build error resolution (NEW)
 |
 |-- skills/           # Workflow definitions and domain knowledge
 |   |-- coding-standards/           # Language best practices
@@ -173,6 +175,12 @@ everything-claude-code/
 |   |-- verification-loop/          # Continuous verification (Longform Guide)
 |   |-- golang-patterns/            # Go idioms and best practices (NEW)
 |   |-- golang-testing/             # Go testing patterns, TDD, benchmarks (NEW)
+|   |-- java-coding-standards/      # Java coding standards (NEW)
+|   |-- springboot-patterns/        # Spring Boot architecture patterns (NEW)
+|   |-- springboot-security/        # Spring Boot security checklist (NEW)
+|   |-- springboot-tdd/             # Spring Boot TDD workflow (NEW)
+|   |-- springboot-verification/    # Spring Boot verification loop (NEW)
+|   |-- jpa-patterns/               # JPA/Hibernate patterns (NEW)
 |
 |-- commands/         # Slash commands for quick execution
 |   |-- tdd.md              # /tdd - Test-driven development
@@ -188,6 +196,9 @@ everything-claude-code/
 |   |-- go-review.md        # /go-review - Go code review (NEW)
 |   |-- go-test.md          # /go-test - Go TDD workflow (NEW)
 |   |-- go-build.md         # /go-build - Fix Go build errors (NEW)
+|   |-- java-review.md      # /java-review - Java code review (NEW)
+|   |-- java-test.md        # /java-test - Java TDD workflow (NEW)
+|   |-- java-build.md       # /java-build - Fix Java build errors (NEW)
 |   |-- skill-create.md     # /skill-create - Generate skills from git history (NEW)
 |   |-- instinct-status.md  # /instinct-status - View learned instincts (NEW)
 |   |-- instinct-import.md  # /instinct-import - Import instincts (NEW)

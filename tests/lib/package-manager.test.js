@@ -52,10 +52,11 @@ function runTests() {
     assert.ok(pm.PACKAGE_MANAGERS.pnpm, 'Should have pnpm');
     assert.ok(pm.PACKAGE_MANAGERS.yarn, 'Should have yarn');
     assert.ok(pm.PACKAGE_MANAGERS.bun, 'Should have bun');
+    assert.ok(pm.PACKAGE_MANAGERS.maven, 'Should have maven');
   })) passed++; else failed++;
 
   if (test('Each manager has required properties', () => {
-    const requiredProps = ['name', 'lockFile', 'installCmd', 'runCmd', 'execCmd', 'testCmd', 'buildCmd', 'devCmd'];
+    const requiredProps = ['name', 'command', 'lockFile', 'installCmd', 'runCmd', 'execCmd', 'testCmd', 'buildCmd', 'devCmd'];
     for (const [name, config] of Object.entries(pm.PACKAGE_MANAGERS)) {
       for (const prop of requiredProps) {
         assert.ok(config[prop], `${name} should have ${prop}`);
@@ -110,6 +111,17 @@ function runTests() {
     }
   })) passed++; else failed++;
 
+  if (test('detects maven from pom.xml', () => {
+    const testDir = createTestDir();
+    try {
+      fs.writeFileSync(path.join(testDir, 'pom.xml'), '<project></project>');
+      const result = pm.detectFromLockFile(testDir);
+      assert.strictEqual(result, 'maven');
+    } finally {
+      cleanupTestDir(testDir);
+    }
+  })) passed++; else failed++;
+
   if (test('returns null when no lock file exists', () => {
     const testDir = createTestDir();
     try {
@@ -129,6 +141,18 @@ function runTests() {
       const result = pm.detectFromLockFile(testDir);
       // pnpm has higher priority in DETECTION_PRIORITY
       assert.strictEqual(result, 'pnpm');
+    } finally {
+      cleanupTestDir(testDir);
+    }
+  })) passed++; else failed++;
+
+  if (test('respects detection priority (npm > maven)', () => {
+    const testDir = createTestDir();
+    try {
+      fs.writeFileSync(path.join(testDir, 'package-lock.json'), '{}');
+      fs.writeFileSync(path.join(testDir, 'pom.xml'), '<project></project>');
+      const result = pm.detectFromLockFile(testDir);
+      assert.strictEqual(result, 'npm');
     } finally {
       cleanupTestDir(testDir);
     }
@@ -317,6 +341,7 @@ function runTests() {
     assert.ok(pattern.includes('pnpm'), 'Should include pnpm');
     assert.ok(pattern.includes('yarn dev'), 'Should include yarn');
     assert.ok(pattern.includes('bun run dev'), 'Should include bun');
+    assert.ok(pattern.includes('spring-boot:run'), 'Should include maven');
   })) passed++; else failed++;
 
   if (test('pattern matches actual commands', () => {
@@ -327,6 +352,8 @@ function runTests() {
     assert.ok(regex.test('pnpm test'), 'Should match pnpm test');
     assert.ok(regex.test('yarn test'), 'Should match yarn test');
     assert.ok(regex.test('bun test'), 'Should match bun test');
+    assert.ok(regex.test('mvn test'), 'Should match mvn test');
+    assert.ok(regex.test('./mvnw test'), 'Should match mvnw test');
     assert.ok(!regex.test('cargo test'), 'Should not match cargo test');
   })) passed++; else failed++;
 

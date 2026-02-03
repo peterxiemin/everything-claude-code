@@ -105,12 +105,12 @@ cp -r everything-claude-code/rules/* ~/.claude/rules/
 
 ### 包管理器检测
 
-插件自动检测你首选的包管理器（npm、pnpm、yarn 或 bun），优先级如下：
+插件自动检测你首选的包管理器（npm、pnpm、yarn、bun 或 maven），优先级如下：
 
 1. **环境变量**: `CLAUDE_PACKAGE_MANAGER`
 2. **项目配置**: `.claude/package-manager.json`
 3. **package.json**: `packageManager` 字段
-4. **锁文件**: 从 package-lock.json、yarn.lock、pnpm-lock.yaml 或 bun.lockb 检测
+4. **锁文件**: 从 package-lock.json、yarn.lock、pnpm-lock.yaml、bun.lockb 或 pom.xml 检测
 5. **全局配置**: `~/.claude/package-manager.json`
 6. **回退**: 第一个可用的包管理器
 
@@ -156,6 +156,8 @@ everything-claude-code/
 |   |-- doc-updater.md       # 文档同步
 |   |-- go-reviewer.md       # Go 代码审查（新增）
 |   |-- go-build-resolver.md # Go 构建错误解决（新增）
+|   |-- java-reviewer.md     # Java 代码审查（新增）
+|   |-- java-build-resolver.md # Java 构建错误解决（新增）
 |
 |-- skills/           # 工作流定义和领域知识
 |   |-- coding-standards/           # 语言最佳实践
@@ -171,6 +173,12 @@ everything-claude-code/
 |   |-- verification-loop/          # 持续验证（详细指南）
 |   |-- golang-patterns/            # Go 惯用语和最佳实践（新增）
 |   |-- golang-testing/             # Go 测试模式、TDD、基准测试（新增）
+|   |-- java-coding-standards/      # Java 编码规范（新增）
+|   |-- springboot-patterns/        # Spring Boot 架构模式（新增）
+|   |-- springboot-security/        # Spring Boot 安全清单（新增）
+|   |-- springboot-tdd/             # Spring Boot TDD 工作流（新增）
+|   |-- springboot-verification/    # Spring Boot 验证循环（新增）
+|   |-- jpa-patterns/               # JPA/Hibernate 模式（新增）
 |
 |-- commands/         # 用于快速执行的斜杠命令
 |   |-- tdd.md              # /tdd - 测试驱动开发
@@ -186,6 +194,9 @@ everything-claude-code/
 |   |-- go-review.md        # /go-review - Go 代码审查（新增）
 |   |-- go-test.md          # /go-test - Go TDD 工作流（新增）
 |   |-- go-build.md         # /go-build - 修复 Go 构建错误（新增）
+|   |-- java-review.md      # /java-review - Java 代码审查（新增）
+|   |-- java-test.md        # /java-test - Java TDD 工作流（新增）
+|   |-- java-build.md       # /java-build - 修复 Java 构建错误（新增）
 |   |-- skill-create.md     # /skill-create - 从 git 历史生成技能（新增）
 |   |-- instinct-status.md  # /instinct-status - 查看学习的直觉（新增）
 |   |-- instinct-import.md  # /instinct-import - 导入直觉（新增）

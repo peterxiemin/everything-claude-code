@@ -105,12 +105,12 @@ cp -r everything-claude-code/rules/* ~/.claude/rules/
 
 ### 套件管理器偵測
 
-外掛程式會自動偵測您偏好的套件管理器（npm、pnpm、yarn 或 bun），優先順序如下：
+外掛程式會自動偵測您偏好的套件管理器（npm、pnpm、yarn、bun 或 maven），優先順序如下：
 
 1. **環境變數**：`CLAUDE_PACKAGE_MANAGER`
 2. **專案設定**：`.claude/package-manager.json`
 3. **package.json**：`packageManager` 欄位
-4. **鎖定檔案**：從 package-lock.json、yarn.lock、pnpm-lock.yaml 或 bun.lockb 偵測
+4. **鎖定檔案**：從 package-lock.json、yarn.lock、pnpm-lock.yaml、bun.lockb 或 pom.xml 偵測
 5. **全域設定**：`~/.claude/package-manager.json`
 6. **備援方案**：第一個可用的套件管理器
 
@@ -156,6 +156,8 @@ everything-claude-code/
 |   |-- doc-updater.md       # 文件同步
 |   |-- go-reviewer.md       # Go 程式碼審查（新增）
 |   |-- go-build-resolver.md # Go 建置錯誤解決（新增）
+|   |-- java-reviewer.md     # Java 程式碼審查（新增）
+|   |-- java-build-resolver.md # Java 建置錯誤解決（新增）
 |
 |-- skills/           # 工作流程定義和領域知識
 |   |-- coding-standards/           # 程式語言最佳實務
@@ -171,6 +173,12 @@ everything-claude-code/
 |   |-- verification-loop/          # 持續驗證（完整指南）
 |   |-- golang-patterns/            # Go 慣用語法和最佳實務（新增）
 |   |-- golang-testing/             # Go 測試模式、TDD、基準測試（新增）
+|   |-- java-coding-standards/      # Java 程式碼規範（新增）
+|   |-- springboot-patterns/        # Spring Boot 架構模式（新增）
+|   |-- springboot-security/        # Spring Boot 安全檢查清單（新增）
+|   |-- springboot-tdd/             # Spring Boot TDD 工作流程（新增）
+|   |-- springboot-verification/    # Spring Boot 驗證迴圈（新增）
+|   |-- jpa-patterns/               # JPA/Hibernate 模式（新增）
 |
 |-- commands/         # 快速執行的斜線指令
 |   |-- tdd.md              # /tdd - 測試驅動開發
@@ -186,6 +194,9 @@ everything-claude-code/
 |   |-- go-review.md        # /go-review - Go 程式碼審查（新增）
 |   |-- go-test.md          # /go-test - Go TDD 工作流程（新增）
 |   |-- go-build.md         # /go-build - 修復 Go 建置錯誤（新增）
+|   |-- java-review.md      # /java-review - Java 程式碼審查（新增）
+|   |-- java-test.md        # /java-test - Java TDD 工作流程（新增）
+|   |-- java-build.md       # /java-build - 修復 Java 建置錯誤（新增）
 |
 |-- rules/            # 必須遵守的準則（複製到 ~/.claude/rules/）
 |   |-- security.md         # 強制性安全檢查

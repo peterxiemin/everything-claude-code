@@ -1,5 +1,5 @@
 ---
-description: Configure your preferred package manager (npm/pnpm/yarn/bun)
+description: Configure your preferred package manager (npm/pnpm/yarn/bun/maven)
 disable-model-invocation: true
 ---
 
@@ -30,9 +30,9 @@ When determining which package manager to use, the following order is checked:
 1. **Environment variable**: `CLAUDE_PACKAGE_MANAGER`
 2. **Project config**: `.claude/package-manager.json`
 3. **package.json**: `packageManager` field
-4. **Lock file**: Presence of package-lock.json, yarn.lock, pnpm-lock.yaml, or bun.lockb
+4. **Lock file**: Presence of package-lock.json, yarn.lock, pnpm-lock.yaml, bun.lockb, or pom.xml
 5. **Global config**: `~/.claude/package-manager.json`
-6. **Fallback**: First available package manager (pnpm > bun > yarn > npm)
+6. **Fallback**: First available package manager (pnpm > bun > yarn > npm > maven)
 
 ## Configuration Files
 
@@ -49,6 +49,13 @@ When determining which package manager to use, the following order is checked:
 // .claude/package-manager.json
 {
   "packageManager": "bun"
+}
+```
+
+```json
+// Example for Maven projects
+{
+  "packageManager": "maven"
 }
 ```
 

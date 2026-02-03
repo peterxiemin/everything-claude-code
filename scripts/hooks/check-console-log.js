@@ -4,7 +4,8 @@
  * Stop Hook: Check for console.log statements in modified files
  * 
  * This hook runs after each response and checks if any modified
- * JavaScript/TypeScript files contain console.log statements.
+ * JavaScript/TypeScript files contain console.log statements or
+ * Java files contain System.out.println/printStackTrace.
  * It provides warnings to help developers remember to remove
  * debug statements before committing.
  */
@@ -36,21 +37,26 @@ process.stdin.on('end', () => {
       stdio: ['pipe', 'pipe', 'pipe']
     })
       .split('\n')
-      .filter(f => /\.(ts|tsx|js|jsx)$/.test(f) && fs.existsSync(f));
+      .filter(f => /\.(ts|tsx|js|jsx|java)$/.test(f) && fs.existsSync(f));
 
     let hasConsole = false;
 
     // Check each file for console.log
     for (const file of files) {
       const content = fs.readFileSync(file, 'utf8');
-      if (content.includes('console.log')) {
-        console.error(`[Hook] WARNING: console.log found in ${file}`);
+      const isJava = file.endsWith('.java');
+      const hasLog = isJava
+        ? /System\.out\.println|printStackTrace\s*\(/.test(content)
+        : content.includes('console.log');
+
+      if (hasLog) {
+        console.error(`[Hook] WARNING: console/System.out found in ${file}`);
         hasConsole = true;
       }
     }
 
     if (hasConsole) {
-      console.error('[Hook] Remove console.log statements before committing');
+      console.error('[Hook] Remove console/System.out debug statements before committing');
     }
   } catch (_error) {
     // Silently ignore errors (git might not be available, etc.)

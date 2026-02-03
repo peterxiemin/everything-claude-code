@@ -1,5 +1,5 @@
 ---
-description: Configure your preferred package manager (npm/pnpm/yarn/bun)
+description: Configure your preferred package manager (npm/pnpm/yarn/bun/maven)
 disable-model-invocation: true
 ---
 
@@ -30,9 +30,9 @@ node scripts/setup-package-manager.js --list
 1. **環境變數**：`CLAUDE_PACKAGE_MANAGER`
 2. **專案設定**：`.claude/package-manager.json`
 3. **package.json**：`packageManager` 欄位
-4. **Lock 檔案**：是否存在 package-lock.json、yarn.lock、pnpm-lock.yaml 或 bun.lockb
+4. **Lock 檔案**：是否存在 package-lock.json、yarn.lock、pnpm-lock.yaml、bun.lockb 或 pom.xml
 5. **全域設定**：`~/.claude/package-manager.json`
-6. **備援**：第一個可用的套件管理器（pnpm > bun > yarn > npm）
+6. **備援**：第一個可用的套件管理器（pnpm > bun > yarn > npm > maven）
 
 ## 設定檔
 
@@ -49,6 +49,13 @@ node scripts/setup-package-manager.js --list
 // .claude/package-manager.json
 {
   "packageManager": "bun"
+}
+```
+
+```json
+// Maven 專案範例
+{
+  "packageManager": "maven"
 }
 ```
 

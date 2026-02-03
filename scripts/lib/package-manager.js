@@ -2,7 +2,7 @@
  * Package Manager Detection and Selection
  * Automatically detects the preferred package manager or lets user choose
  *
- * Supports: npm, pnpm, yarn, bun
+ * Supports: npm, pnpm, yarn, bun, maven
  */
 
 const fs = require('fs');
@@ -13,6 +13,7 @@ const { commandExists, getClaudeDir, readFile, writeFile } = require('./utils');
 const PACKAGE_MANAGERS = {
   npm: {
     name: 'npm',
+    command: 'npm',
     lockFile: 'package-lock.json',
     installCmd: 'npm install',
     runCmd: 'npm run',
@@ -23,6 +24,7 @@ const PACKAGE_MANAGERS = {
   },
   pnpm: {
     name: 'pnpm',
+    command: 'pnpm',
     lockFile: 'pnpm-lock.yaml',
     installCmd: 'pnpm install',
     runCmd: 'pnpm',
@@ -33,6 +35,7 @@ const PACKAGE_MANAGERS = {
   },
   yarn: {
     name: 'yarn',
+    command: 'yarn',
     lockFile: 'yarn.lock',
     installCmd: 'yarn',
     runCmd: 'yarn',
@@ -43,6 +46,7 @@ const PACKAGE_MANAGERS = {
   },
   bun: {
     name: 'bun',
+    command: 'bun',
     lockFile: 'bun.lockb',
     installCmd: 'bun install',
     runCmd: 'bun run',
@@ -50,11 +54,22 @@ const PACKAGE_MANAGERS = {
     testCmd: 'bun test',
     buildCmd: 'bun run build',
     devCmd: 'bun run dev'
+  },
+  maven: {
+    name: 'maven',
+    command: 'mvn',
+    lockFile: 'pom.xml',
+    installCmd: 'mvn -q -DskipTests install',
+    runCmd: 'mvn',
+    execCmd: 'mvn',
+    testCmd: 'mvn test',
+    buildCmd: 'mvn -q -DskipTests package',
+    devCmd: 'mvn spring-boot:run'
   }
 };
 
 // Priority order for detection
-const DETECTION_PRIORITY = ['pnpm', 'bun', 'yarn', 'npm'];
+const DETECTION_PRIORITY = ['pnpm', 'bun', 'yarn', 'npm', 'maven'];
 
 // Config file path
 function getConfigPath() {
@@ -132,7 +147,8 @@ function getAvailablePackageManagers() {
   const available = [];
 
   for (const pmName of Object.keys(PACKAGE_MANAGERS)) {
-    if (commandExists(pmName)) {
+    const command = PACKAGE_MANAGERS[pmName].command || pmName;
+    if (commandExists(command)) {
       available.push(pmName);
     }
   }
@@ -321,6 +337,7 @@ function getSelectionPrompt() {
   message += '\nTo set your preferred package manager:\n';
   message += '  - Global: Set CLAUDE_PACKAGE_MANAGER environment variable\n';
   message += '  - Or add to ~/.claude/package-manager.json: {"packageManager": "pnpm"}\n';
+  message += '  - Or add to .claude/package-manager.json: {"packageManager": "maven"}\n';
   message += '  - Or add to package.json: {"packageManager": "pnpm@8"}\n';
 
   return message;
@@ -338,28 +355,38 @@ function getCommandPattern(action) {
       'npm run dev',
       'pnpm( run)? dev',
       'yarn dev',
-      'bun run dev'
+      'bun run dev',
+      'mvn(\\s+[^\\s]+)*\\s+spring-boot:run',
+      '\\./mvnw(\\s+[^\\s]+)*\\s+spring-boot:run'
     );
   } else if (action === 'install') {
     patterns.push(
       'npm install',
       'pnpm install',
       'yarn( install)?',
-      'bun install'
+      'bun install',
+      'mvn(\\s+[^\\s]+)*\\s+install',
+      '\\./mvnw(\\s+[^\\s]+)*\\s+install'
     );
   } else if (action === 'test') {
     patterns.push(
       'npm test',
       'pnpm test',
       'yarn test',
-      'bun test'
+      'bun test',
+      'mvn(\\s+[^\\s]+)*\\s+test',
+      '\\./mvnw(\\s+[^\\s]+)*\\s+test'
     );
   } else if (action === 'build') {
     patterns.push(
       'npm run build',
       'pnpm( run)? build',
       'yarn build',
-      'bun run build'
+      'bun run build',
+      'mvn(\\s+[^\\s]+)*\\s+package',
+      '\\./mvnw(\\s+[^\\s]+)*\\s+package',
+      'mvn(\\s+[^\\s]+)*\\s+verify',
+      '\\./mvnw(\\s+[^\\s]+)*\\s+verify'
     );
   } else {
     // Generic run command
@@ -367,7 +394,9 @@ function getCommandPattern(action) {
       `npm run ${action}`,
       `pnpm( run)? ${action}`,
       `yarn ${action}`,
-      `bun run ${action}`
+      `bun run ${action}`,
+      `mvn(\\s+[^\\s]+)*\\s+${action}`,
+      `\\./mvnw(\\s+[^\\s]+)*\\s+${action}`
     );
   }
 
