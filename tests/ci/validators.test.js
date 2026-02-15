@@ -1895,6 +1895,250 @@ function runTests() {
     cleanupTestDir(testDir);
   })) passed++; else failed++;
 
+  // ── Round 70: validate-commands.js "would create:" line skip ──
+  console.log('\nRound 70: validate-commands.js (would create: skip):');
+
+  if (test('skips command references on "would create:" lines', () => {
+    const testDir = createTestDir();
+    const agentsDir = createTestDir();
+    const skillsDir = createTestDir();
+    // "Would create:" is the alternate form checked by the regex at line 80:
+    //   if (/creates:|would create:/i.test(line)) continue;
+    // Only "creates:" was previously tested (Round 20). "Would create:" exercises
+    // the second alternation in the regex.
+    fs.writeFileSync(path.join(testDir, 'gen-cmd.md'),
+      '# Generator Command\n\nWould create: `/phantom-cmd` in your project.\n\nThis is safe.');
+
+    const result = runValidatorWithDirs('validate-commands', {
+      COMMANDS_DIR: testDir, AGENTS_DIR: agentsDir, SKILLS_DIR: skillsDir
+    });
+    assert.strictEqual(result.code, 0, 'Should skip "would create:" lines');
+    assert.ok(!result.stderr.includes('phantom-cmd'), 'Should not flag ref on "would create:" line');
+    cleanupTestDir(testDir); cleanupTestDir(agentsDir); cleanupTestDir(skillsDir);
+  })) passed++; else failed++;
+
+  // ── Round 72: validate-hooks.js async/timeout type validation ──
+  console.log('\nRound 72: validate-hooks.js (async and timeout type validation):');
+
+  if (test('rejects hook with non-boolean async field', () => {
+    const testDir = createTestDir();
+    const hooksFile = path.join(testDir, 'hooks.json');
+    fs.writeFileSync(hooksFile, JSON.stringify({
+      PreToolUse: [{
+        matcher: 'Write',
+        hooks: [{
+          type: 'intercept',
+          command: 'echo test',
+          async: 'yes'  // Should be boolean, not string
+        }]
+      }]
+    }));
+    const result = runValidatorWithDir('validate-hooks', 'HOOKS_FILE', hooksFile);
+    assert.strictEqual(result.code, 1, 'Should fail on non-boolean async');
+    assert.ok(result.stderr.includes('async'), 'Should mention async in error');
+    assert.ok(result.stderr.includes('boolean'), 'Should mention boolean type');
+    cleanupTestDir(testDir);
+  })) passed++; else failed++;
+
+  if (test('rejects hook with negative timeout value', () => {
+    const testDir = createTestDir();
+    const hooksFile = path.join(testDir, 'hooks.json');
+    fs.writeFileSync(hooksFile, JSON.stringify({
+      PostToolUse: [{
+        matcher: 'Edit',
+        hooks: [{
+          type: 'intercept',
+          command: 'echo test',
+          timeout: -5  // Must be non-negative
+        }]
+      }]
+    }));
+    const result = runValidatorWithDir('validate-hooks', 'HOOKS_FILE', hooksFile);
+    assert.strictEqual(result.code, 1, 'Should fail on negative timeout');
+    assert.ok(result.stderr.includes('timeout'), 'Should mention timeout in error');
+    assert.ok(result.stderr.includes('non-negative'), 'Should mention non-negative');
+    cleanupTestDir(testDir);
+  })) passed++; else failed++;
+
+  // ── Round 73: validate-commands.js skill directory statSync catch ──
+  console.log('\nRound 73: validate-commands.js (unreadable skill entry — statSync catch):');
+
+  if (test('skips unreadable skill directory entries without error (broken symlink)', () => {
+    const testDir = createTestDir();
+    const agentsDir = createTestDir();
+    const skillsDir = createTestDir();
+
+    // Create one valid skill directory and one broken symlink
+    const validSkill = path.join(skillsDir, 'valid-skill');
+    fs.mkdirSync(validSkill, { recursive: true });
+    // Broken symlink: target does not exist — statSync will throw ENOENT
+    const brokenLink = path.join(skillsDir, 'broken-skill');
+    fs.symlinkSync('/nonexistent/target/path', brokenLink);
+
+    // Command that references the valid skill (should resolve)
+    fs.writeFileSync(path.join(testDir, 'cmd.md'),
+      '# Command\nSee skills/valid-skill/ for details.');
+
+    const result = runValidatorWithDirs('validate-commands', {
+      COMMANDS_DIR: testDir, AGENTS_DIR: agentsDir, SKILLS_DIR: skillsDir
+    });
+    assert.strictEqual(result.code, 0,
+      'Should pass — broken symlink in skills dir should be skipped silently');
+    // The broken-skill should NOT be in validSkills, so referencing it would warn
+    // but the valid-skill reference should resolve fine
+    cleanupTestDir(testDir);
+    cleanupTestDir(agentsDir);
+    fs.rmSync(skillsDir, { recursive: true, force: true });
+  })) passed++; else failed++;
+
+  // ── Round 76: validate-hooks.js invalid JSON in hooks.json ──
+  console.log('\nRound 76: validate-hooks.js (invalid JSON in hooks.json):');
+
+  if (test('reports error for invalid JSON in hooks.json', () => {
+    const testDir = createTestDir();
+    const hooksFile = path.join(testDir, 'hooks.json');
+    fs.writeFileSync(hooksFile, '{not valid json!!!');
+
+    const result = runValidatorWithDir('validate-hooks', 'HOOKS_FILE', hooksFile);
+    assert.strictEqual(result.code, 1,
+      `Expected exit 1 for invalid JSON, got ${result.code}`);
+    assert.ok(result.stderr.includes('Invalid JSON'),
+      `stderr should mention Invalid JSON, got: ${result.stderr}`);
+    cleanupTestDir(testDir);
+  })) passed++; else failed++;
+
+  // ── Round 78: validate-hooks.js wrapped { hooks: { ... } } format ──
+  console.log('\nRound 78: validate-hooks.js (wrapped hooks format):');
+
+  if (test('validates wrapped format { hooks: { PreToolUse: [...] } }', () => {
+    const testDir = createTestDir();
+    const hooksFile = path.join(testDir, 'hooks.json');
+    // The production hooks.json uses this wrapped format — { hooks: { ... } }
+    // data.hooks is the object with event types, not data itself
+    fs.writeFileSync(hooksFile, JSON.stringify({
+      "$schema": "https://json.schemastore.org/claude-code-settings.json",
+      hooks: {
+        PreToolUse: [{ matcher: 'Write', hooks: [{ type: 'command', command: 'echo ok' }] }],
+        PostToolUse: [{ matcher: 'Read', hooks: [{ type: 'command', command: 'echo done' }] }]
+      }
+    }));
+
+    const result = runValidatorWithDir('validate-hooks', 'HOOKS_FILE', hooksFile);
+    assert.strictEqual(result.code, 0,
+      `Should pass wrapped hooks format, got exit ${result.code}. stderr: ${result.stderr}`);
+    assert.ok(result.stdout.includes('Validated 2'),
+      `Should validate 2 matchers, got: ${result.stdout}`);
+    cleanupTestDir(testDir);
+  })) passed++; else failed++;
+
+  // ── Round 79: validate-commands.js warnings count suffix in output ──
+  console.log('\nRound 79: validate-commands.js (warnings count in output):');
+
+  if (test('output includes (N warnings) suffix when skill references produce warnings', () => {
+    const testDir = createTestDir();
+    const agentsDir = createTestDir();
+    const skillsDir = createTestDir();
+    // Create a command that references 2 non-existent skill directories
+    // Each triggers a WARN (not error) — warnCount should be 2
+    fs.writeFileSync(path.join(testDir, 'cmd-warn.md'),
+      '# Command\nSee skills/fake-skill-a/ and skills/fake-skill-b/ for details.');
+
+    const result = runValidatorWithDirs('validate-commands', {
+      COMMANDS_DIR: testDir, AGENTS_DIR: agentsDir, SKILLS_DIR: skillsDir
+    });
+    assert.strictEqual(result.code, 0, 'Skill warnings should not cause error exit');
+    // The validate-commands output appends "(N warnings)" when warnCount > 0
+    assert.ok(result.stdout.includes('(2 warnings)'),
+      `Output should include "(2 warnings)" suffix, got: ${result.stdout}`);
+    cleanupTestDir(testDir); cleanupTestDir(agentsDir); cleanupTestDir(skillsDir);
+  })) passed++; else failed++;
+
+  // ── Round 80: validate-hooks.js legacy array format (lines 115-135) ──
+  console.log('\nRound 80: validate-hooks.js (legacy array format):');
+
+  if (test('validates hooks in legacy array format (hooks is an array, not object)', () => {
+    const testDir = createTestDir();
+    // The legacy array format wraps hooks as { hooks: [...] } where the array
+    // contains matcher objects directly. This exercises lines 115-135 of
+    // validate-hooks.js which use "Hook ${i}" error labels instead of "${eventType}[${i}]".
+    const hooksJson = JSON.stringify({
+      hooks: [
+        {
+          matcher: 'Edit',
+          hooks: [{ type: 'command', command: 'echo legacy test' }]
+        }
+      ]
+    });
+    fs.writeFileSync(path.join(testDir, 'hooks.json'), hooksJson);
+
+    const result = runValidatorWithDir('validate-hooks', 'HOOKS_FILE', path.join(testDir, 'hooks.json'));
+    assert.strictEqual(result.code, 0, 'Should pass on valid legacy array format');
+    assert.ok(result.stdout.includes('Validated 1 hook'),
+      `Should report 1 validated matcher, got: ${result.stdout}`);
+    cleanupTestDir(testDir);
+  })) passed++; else failed++;
+
+  // ── Round 82: Notification and SubagentStop event types ──
+
+  console.log('\nRound 82: validate-hooks (Notification and SubagentStop event types):');
+
+  if (test('accepts Notification and SubagentStop as valid event types', () => {
+    const testDir = createTestDir();
+    const hooksJson = JSON.stringify({
+      hooks: [
+        {
+          matcher: { type: 'Notification' },
+          hooks: [{ type: 'command', command: 'echo notification' }]
+        },
+        {
+          matcher: { type: 'SubagentStop' },
+          hooks: [{ type: 'command', command: 'echo subagent stopped' }]
+        }
+      ]
+    });
+    fs.writeFileSync(path.join(testDir, 'hooks.json'), hooksJson);
+
+    const result = runValidatorWithDir('validate-hooks', 'HOOKS_FILE', path.join(testDir, 'hooks.json'));
+    assert.strictEqual(result.code, 0, 'Should pass with Notification and SubagentStop events');
+    assert.ok(result.stdout.includes('Validated 2 hook'),
+      `Should report 2 validated matchers, got: ${result.stdout}`);
+    cleanupTestDir(testDir);
+  })) passed++; else failed++;
+
+  // ── Round 83: validate-agents whitespace-only field, validate-skills empty SKILL.md ──
+
+  console.log('\nRound 83: validate-agents (whitespace-only frontmatter field value):');
+
+  if (test('rejects agent with whitespace-only model field (trim guard)', () => {
+    const testDir = createTestDir();
+    // model has only whitespace — extractFrontmatter produces { model: '   ', tools: 'Read' }
+    // The condition: typeof frontmatter[field] === 'string' && !frontmatter[field].trim()
+    // evaluates to true for model → "Missing required field: model"
+    fs.writeFileSync(path.join(testDir, 'ws.md'), '---\nmodel:   \ntools: Read\n---\n# Whitespace model');
+
+    const result = runValidatorWithDir('validate-agents', 'AGENTS_DIR', testDir);
+    assert.strictEqual(result.code, 1, 'Should reject whitespace-only model');
+    assert.ok(result.stderr.includes('model'), 'Should report missing model field');
+    assert.ok(!result.stderr.includes('tools'), 'tools field is valid and should NOT be flagged');
+    cleanupTestDir(testDir);
+  })) passed++; else failed++;
+
+  console.log('\nRound 83: validate-skills (empty SKILL.md file):');
+
+  if (test('rejects skill directory with empty SKILL.md file', () => {
+    const testDir = createTestDir();
+    const skillDir = path.join(testDir, 'empty-skill');
+    fs.mkdirSync(skillDir, { recursive: true });
+    // Create SKILL.md with only whitespace (trim to zero length)
+    fs.writeFileSync(path.join(skillDir, 'SKILL.md'), '   \n  \n');
+
+    const result = runValidatorWithDir('validate-skills', 'SKILLS_DIR', testDir);
+    assert.strictEqual(result.code, 1, 'Should reject empty SKILL.md');
+    assert.ok(result.stderr.includes('Empty file'),
+      `Should report "Empty file", got: ${result.stderr}`);
+    cleanupTestDir(testDir);
+  })) passed++; else failed++;
+
   // Summary
   console.log(`\nResults: Passed: ${passed}, Failed: ${failed}`);
   process.exit(failed > 0 ? 1 : 0);

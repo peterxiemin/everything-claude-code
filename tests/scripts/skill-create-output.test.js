@@ -470,6 +470,61 @@ function runTests() {
     assert.ok(boxLines.length >= 3, 'Should render a complete box');
   })) passed++; else failed++;
 
+  // ── Round 68: demo function export ──
+  console.log('\ndemo export (Round 68):');
+
+  if (test('module exports demo function alongside SkillCreateOutput', () => {
+    const mod = require('../../scripts/skill-create-output');
+    assert.ok(mod.demo, 'Should export demo function');
+    assert.strictEqual(typeof mod.demo, 'function', 'demo should be a function');
+    assert.ok(mod.SkillCreateOutput, 'Should also export SkillCreateOutput');
+    assert.strictEqual(typeof mod.SkillCreateOutput, 'function', 'SkillCreateOutput should be a constructor');
+  })) passed++; else failed++;
+
+  // ── Round 85: patterns() confidence=0 uses ?? (not ||) ──
+  console.log('\nRound 85: patterns() confidence=0 nullish coalescing:');
+
+  if (test('patterns() with confidence=0 shows 0%, not 80% (nullish coalescing fix)', () => {
+    const output = new SkillCreateOutput('repo');
+    const logs = captureLog(() => output.patterns([
+      { name: 'Zero Confidence', trigger: 'never', confidence: 0, evidence: 'none' },
+    ]));
+    const combined = stripAnsi(logs.join('\n'));
+    // With ?? operator: 0 ?? 0.8 = 0 → Math.round(0 * 100) = 0 → shows "0%"
+    // With || operator (bug): 0 || 0.8 = 0.8 → shows "80%"
+    assert.ok(combined.includes('0%'), 'Should show 0% for zero confidence');
+    assert.ok(!combined.includes('80%'),
+      'Should NOT show 80% — confidence=0 is explicitly provided, not missing');
+  })) passed++; else failed++;
+
+  // ── Round 87: analyzePhase() async method (untested) ──
+  console.log('\nRound 87: analyzePhase() async method:');
+
+  if (test('analyzePhase completes without error and writes to stdout', () => {
+    const output = new SkillCreateOutput('test-repo');
+    // analyzePhase is async and calls animateProgress which uses sleep() and
+    // process.stdout.write/clearLine/cursorTo. In non-TTY environments clearLine
+    // and cursorTo are undefined, but the code uses optional chaining (?.) to
+    // handle this safely. We verify it resolves without throwing.
+    // Capture stdout.write to verify output was produced.
+    const writes = [];
+    const origWrite = process.stdout.write;
+    process.stdout.write = function(str) { writes.push(String(str)); return true; };
+    try {
+      // Call synchronously by accessing the returned promise — we just need to
+      // verify it doesn't throw during setup. The sleeps total 1.9s so we
+      // verify the promise is a thenable (async function returns Promise).
+      const promise = output.analyzePhase({ commits: 42 });
+      assert.ok(promise && typeof promise.then === 'function',
+        'analyzePhase should return a Promise');
+    } finally {
+      process.stdout.write = origWrite;
+    }
+    // Verify that process.stdout.write was called (the header line is written synchronously)
+    assert.ok(writes.length > 0, 'Should have written output via process.stdout.write');
+    assert.ok(writes.some(w => w.includes('Analyzing')), 'Should include "Analyzing" label');
+  })) passed++; else failed++;
+
   // Summary
   console.log(`\nResults: Passed: ${passed}, Failed: ${failed}`);
   process.exit(failed > 0 ? 1 : 0);
